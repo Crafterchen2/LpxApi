@@ -18,6 +18,37 @@ public class ByteOutOfRange() : LpxApiException("Maximum Value for bytes is 0x7f
     }
 }
 
+public class HalfByteOutOfRange() : LpxApiException("Maximum Value for bytes is 0x40 (64).")
+{
+    public static void Test(byte toTest)
+    {
+        if (toTest > 0x40) throw new HalfByteOutOfRange();
+    }
+}
+
+public class SignedByteOutOfRange(bool isSigned) : LpxApiException(isSigned
+    ? "sbyte must be between -0x40 and 0x37 (inclusive)."
+    : "byte must smaller than or equal to 0x7f")
+{
+    public static void Test(byte toTest)
+    {
+        if (toTest > 0x7f) throw new SignedByteOutOfRange(false);
+    }
+    
+    public static void Test(sbyte toTest)
+    {
+        if (toTest is < -0x40 or > 0x3f) throw new SignedByteOutOfRange(true);
+    }
+}
+
+public class NibbleOutOfRange() : LpxApiException("Maximum Value for nibbles is 0x0f (15).")
+{
+    public static void Test(byte toTest)
+    {
+        if (toTest > 0x0f) throw new NibbleOutOfRange();
+    }
+}
+
 public class InvalidIndex() : LpxApiException("index must be a decimal number, where each digit must be between 1 and 9 (inclusive).")
 {
     public static void Test(byte toTest)

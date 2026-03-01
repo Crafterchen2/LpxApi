@@ -14,89 +14,44 @@ internal static class Wap //Windows Api wraPper = WAP
     internal const int CallbackFunction = 0x00030000;
     
     [DllImport("winmm.dll")]
-    internal static extern int midiOutGetNumDevs();
+    internal static extern uint midiOutGetNumDevs();
 
     [DllImport("winmm.dll")]
-    internal static extern int midiInGetNumDevs();
+    internal static extern uint midiInGetNumDevs();
 
     [DllImport("winmm.dll")]
-    internal static extern int midiOutGetDevCaps(int uDeviceId, out MidiOutCaps caps, int cbMidiOutCaps);
+    internal static extern MmResult midiOutGetDevCaps(uint uDeviceId, out MidiOutCaps pmoc, uint cbmoc);
 
     [DllImport("winmm.dll")]
-    internal static extern int midiInGetDevCaps(int uDeviceId, out MidiInCaps caps, int cbMidiInCaps);
+    internal static extern MmResult midiInGetDevCaps(uint uDeviceId, out MidiInCaps caps, uint cbMidiInCaps);
 
     [DllImport("winmm.dll")]
-    internal static extern int midiOutOpen(out IntPtr phmo, int uDeviceId, IntPtr dwCallback, IntPtr dwInstance, int fdwOpen);
+    internal static extern MmResult midiOutOpen(out IntPtr phmo, uint uDeviceId, MidiOutProc dwCallback, IntPtr dwInstance, ulong fdwOpen);
 
     [DllImport("winmm.dll")]
-    internal static extern int midiInOpen(out IntPtr phmi, int uDeviceId, MidiInProc dwCallback, IntPtr dwInstance, int fdwOpen);
+    internal static extern MmResult midiInOpen(out IntPtr phmi, uint uDeviceId, MidiInProc dwCallback, IntPtr dwInstance, ulong fdwOpen);
 
     [DllImport("winmm.dll")]
-    internal static extern int midiOutPrepareHeader(IntPtr handle, IntPtr header, int size);
+    internal static extern MmResult midiOutPrepareHeader(IntPtr handle, IntPtr header, uint size);
 
     [DllImport("winmm.dll")]
-    internal static extern int midiOutLongMsg(IntPtr hmo, IntPtr pmh, int cbmh);
+    internal static extern MmResult midiOutLongMsg(IntPtr hmo, IntPtr pmh, int cbmh);
 
     [DllImport("winmm.dll")]
-    internal static extern int midiOutUnprepareHeader(IntPtr handle, IntPtr header, int size);
+    internal static extern MmResult midiOutUnprepareHeader(IntPtr hmo, IntPtr header, uint size);
 
     [DllImport("winmm.dll")]
-    internal static extern int midiInStart(IntPtr phmi);
+    internal static extern MmResult midiInStart(IntPtr phmi);
 
     [DllImport("winmm.dll")]
-    internal static extern int midiInStop(IntPtr phmi);
+    internal static extern MmResult midiInStop(IntPtr phmi);
 
     [DllImport("winmm.dll")]
-    internal static extern int midiInClose(IntPtr phmi);
+    internal static extern MmResult midiInClose(IntPtr phmi);
 
     [DllImport("winmm.dll")]
-    internal static extern int midiOutClose(IntPtr phmo);
-
-    [StructLayout(LayoutKind.Sequential)]
-    internal struct MidiOutCaps
-    {
-        public ushort wMid;
-        public ushort wPid;
-        public uint vDriverVersion;
-
-        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)]
-        public string szPname;
-
-        public ushort wTechnology;
-        public ushort wVoices;
-        public ushort wNotes;
-        public ushort wChannelMask;
-        public uint dwSupport;
-    }
-
-    [StructLayout(LayoutKind.Sequential)]
-    internal struct MidiInCaps
-    {
-        public ushort wMid;
-        public ushort wPid;
-        public uint vDriverVersion;
-
-        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)]
-        public string szPname;
-
-        public uint dwSupport;
-    }
-
-    [StructLayout(LayoutKind.Sequential)]
-    internal struct Midihdr
-    {
-        public IntPtr lpData;
-        public int dwBufferLength;
-        public int dwBytesRecorded;
-        public IntPtr dwUser;
-        public int dwFlags;
-        public IntPtr lpNext;
-        public IntPtr reserved;
-        public int dwOffset;
-
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 8)]
-        public IntPtr[] dwReserved;
-    }
+    internal static extern MmResult midiOutClose(IntPtr phmo);
     
     internal delegate void MidiInProc(IntPtr hMidiIn, int wMsg, IntPtr dwInstance, IntPtr dwParam1, IntPtr dwParam2);
+    internal delegate void MidiOutProc(IntPtr hMidiOut, int wMsg, IntPtr dwInstance, IntPtr dwParam1, IntPtr dwParam2);
 }
