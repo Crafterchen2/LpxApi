@@ -64,3 +64,11 @@ public class InvalidFaderIndex() : LpxApiException("index must be between 0 and 
         if (toTest > 7) throw new InvalidFaderIndex();
     }
 }
+
+public class InvalidNoOverlapWidth() : LpxApiException("width must be between 0 and 8 (inclusive).")
+{
+    public static void Test(byte toTest)
+    {
+        if (toTest > 8) throw new InvalidNoOverlapWidth();
+    }
+}
