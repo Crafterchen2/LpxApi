@@ -1,4 +1,4 @@
-﻿namespace LpxApi.launchpad;
+﻿namespace LpxApi;
 
 public interface IByteTransmittable
 {
