@@ -10,7 +10,7 @@ public class LpxApiException : Exception
 public class NoInDevice() : LpxApiException("No device of type 'IN' configured.");
 public class NoOutDevice() : LpxApiException("No device of type 'OUT' configured.");
 
-public class UInt7OutOfRange() : LpxApiException("Maximum Value for bytes is 0x7f (127).")
+public class UInt7OutOfRange() : LpxApiException($"Maximum Value for {nameof(UInt7)} is 0x7f (127).")
 {
     public static void Test(byte toTest)
     {
@@ -41,7 +41,7 @@ public class SignedByteOutOfRange(bool isSigned) : LpxApiException(isSigned
     }
 }
 
-public class UInt4OutOfRange() : LpxApiException("Maximum Value for nibbles is 0x0f (15).")
+public class UInt4OutOfRange() : LpxApiException($"Maximum Value for {nameof(UInt4)} is 0x0f (15).")
 {
     public static void Test(byte toTest)
     {
