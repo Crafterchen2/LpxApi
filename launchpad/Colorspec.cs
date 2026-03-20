@@ -4,9 +4,9 @@ public abstract class PureColorspec
 {
     public readonly ColorspecType Type;
     public readonly int ColorHash;
-    protected readonly LpxByte[] Data;
+    protected readonly UInt7[] Data;
 
-    protected PureColorspec(ColorspecType type, LpxByte[] data)
+    protected PureColorspec(ColorspecType type, UInt7[] data)
     {
         Type = type;
         Data = data;
@@ -36,14 +36,14 @@ public abstract class PureColorspec
     public sealed class Static(Palette palette) : PureColorspec(ColorspecType.Static, [palette]);
     public sealed class Flash(Palette paletteA, Palette paletteB) : PureColorspec(ColorspecType.Flash, [paletteA, paletteB]);
     public sealed class Pulse(Palette palette) : PureColorspec(ColorspecType.Pulse, [palette]);
-    public sealed class Rgb(LpxByte r, LpxByte g, LpxByte b) : PureColorspec(ColorspecType.Rgb, [r, g, b]);
+    public sealed class Rgb(UInt7 r, UInt7 g, UInt7 b) : PureColorspec(ColorspecType.Rgb, [r, g, b]);
 }
 
 public abstract class Colorspec : PureColorspec, IByteTransmittable
 {
     public readonly ButtonIndex Index;
 
-    private Colorspec(ColorspecType type, ButtonIndex index, LpxByte[] data) : base(type, data)
+    private Colorspec(ColorspecType type, ButtonIndex index, UInt7[] data) : base(type, data)
     {
         Index = index;
     }
@@ -70,7 +70,7 @@ public abstract class Colorspec : PureColorspec, IByteTransmittable
     public new sealed class Static(ButtonIndex index, Palette palette) : Colorspec(ColorspecType.Static, index, [palette]);
     public new sealed class Flash(ButtonIndex index, Palette paletteA, Palette paletteB) : Colorspec(ColorspecType.Flash, index, [paletteA, paletteB]);
     public new sealed class Pulse(ButtonIndex index, Palette palette) : Colorspec(ColorspecType.Pulse, index, [palette]);
-    public new sealed class Rgb(ButtonIndex index, LpxByte r, LpxByte g, LpxByte b) : Colorspec(ColorspecType.Rgb, index, [r, g, b]);
+    public new sealed class Rgb(ButtonIndex index, UInt7 r, UInt7 g, UInt7 b) : Colorspec(ColorspecType.Rgb, index, [r, g, b]);
 }
 
 public enum ColorspecType : byte

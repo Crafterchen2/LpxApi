@@ -1,10 +1,10 @@
 ﻿namespace LpxApi.launchpad;
 
-public struct Fader(FaderIndex index, LpxBool bipolar, LpxByte controlChange, Palette palette) : IByteTransmittable
+public struct Fader(FaderIndex index, LpxBool bipolar, UInt7 controlChange, Palette palette) : IByteTransmittable
 {
     public FaderIndex Index { get; } = index;
     public LpxBool Bipolar { get; } = bipolar;
-    public LpxByte ControlChange { get; } = controlChange;
+    public UInt7 ControlChange { get; } = controlChange;
     public Palette Palette { get; } = palette;
 
     public byte[] ToBytes() => [Index, Bipolar, ControlChange, Palette];

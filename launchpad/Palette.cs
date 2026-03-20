@@ -17,8 +17,8 @@ public readonly struct Palette : IByteTransmittable
     }
 
     public static implicit operator byte(Palette p) => p.Index;
-    public static implicit operator LpxByte(Palette p) => new(p.Index);
-    public static implicit operator Palette(LpxByte b) => b.Value;
+    public static implicit operator UInt7(Palette p) => new(p.Index);
+    public static implicit operator Palette(UInt7 b) => b.Value;
 
     public static implicit operator System.Drawing.Color(Palette p) =>
         System.Drawing.Color.FromArgb(255, p.R, p.G, p.B);

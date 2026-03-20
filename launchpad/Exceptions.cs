@@ -10,11 +10,11 @@ public class LpxApiException : Exception
 public class NoInDevice() : LpxApiException("No device of type 'IN' configured.");
 public class NoOutDevice() : LpxApiException("No device of type 'OUT' configured.");
 
-public class ByteOutOfRange() : LpxApiException("Maximum Value for bytes is 0x7f (127).")
+public class UInt7OutOfRange() : LpxApiException("Maximum Value for bytes is 0x7f (127).")
 {
     public static void Test(byte toTest)
     {
-        if (toTest > 0x7f) throw new ByteOutOfRange();
+        if (toTest > 0x7f) throw new UInt7OutOfRange();
     }
 }
 

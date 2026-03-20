@@ -43,15 +43,15 @@ public abstract class Launchpad : IDisposable
     public abstract void SelectLayout(Layout layout);
     public abstract void DawFaderSetup(LpxBool horizontal, Fader[] faders);
     public abstract void ApplyColors(Colorspec[] colors);
-    public abstract void VelocityCurve(Curve curve, LpxByte? fixedVelocity = null);
+    public abstract void VelocityCurve(Curve curve, UInt7? fixedVelocity = null);
     public abstract void TextScrolling();
     public abstract void TextScrolling(LpxBool loop);
     public abstract void TextScrolling(LpxBool loop, LpxSignedByte speed);
     public abstract void TextScrolling(LpxBool loop, LpxSignedByte speed, Palette palette);
-    public abstract void TextScrolling(LpxBool loop, LpxSignedByte speed, LpxByte r, LpxByte g, LpxByte b);
+    public abstract void TextScrolling(LpxBool loop, LpxSignedByte speed, UInt7 r, UInt7 g, UInt7 b);
     public abstract void TextScrolling(LpxBool loop, LpxSignedByte speed, Palette palette, string asciiText);
-    public abstract void TextScrolling(LpxBool loop, LpxSignedByte speed, LpxByte r, LpxByte g, LpxByte b, string asciiText);
-    public abstract void Brightness(LpxByte brightness);
+    public abstract void TextScrolling(LpxBool loop, LpxSignedByte speed, UInt7 r, UInt7 g, UInt7 b, string asciiText);
+    public abstract void Brightness(UInt7 brightness);
     public abstract void LedSleep(LpxBool ledOn);
     public abstract void LedFeedback(LpxBool internalOn, LpxBool externalOn);
     public abstract void AftertouchConfig(AftertouchType type, AftertouchThreshold threshold);
@@ -68,7 +68,7 @@ public abstract class Launchpad : IDisposable
     public abstract void DawNoteModeActiveColor(Palette palette);
     public abstract void NoteModeColors(Palette paletteActive, Palette paletteRoot, Palette paletteInScale, Palette paletteOoScale);
     public abstract void Rotation(LpxBool enable);
-    public abstract void StartupAnimation(LpxByte interval, StartupRgb[] rgbs);
+    public abstract void StartupAnimation(UInt7 interval, StartupRgb[] rgbs);
     
     #endregion
 
@@ -77,8 +77,8 @@ public abstract class Launchpad : IDisposable
     // The comment represents an example message that can be sent by the launchpad.
     public abstract Layout GetSelectedLayout(); // [Header F0 00 20 29 02 0C] [Command 00] [layout 01] [Footer F7]
     public abstract (LpxBool isHorizontal, Fader[] fader) GetFaderSetup(); // [Header F0 00 20 29 02 0C] [Command 01] 00 [orientation 01] [fader #0 00 00 00 00] [fader #1 01 00 00 00] [fader #2 02 00 00 00] [fader #3 03 00 00 00] [fader #4 04 00 00 00] [fader #5 05 00 00 00] [fader #6 06 00 00 00] [fader #7 07 00 00 00] [Footer F7]
-    public abstract (Curve curve, LpxByte fixedVelocity) GetVelocityCurve(); // [Header F0 00 20 29 02 0C] [Command 04] [curve 03] [fixedVelocity 40] [Footer F7]
-    public abstract LpxByte GetBrightness(); // [Header F0 00 20 29 02 0C] [Command 08] [brightness 7F] [Footer F7]
+    public abstract (Curve curve, UInt7 fixedVelocity) GetVelocityCurve(); // [Header F0 00 20 29 02 0C] [Command 04] [curve 03] [fixedVelocity 40] [Footer F7]
+    public abstract UInt7 GetBrightness(); // [Header F0 00 20 29 02 0C] [Command 08] [brightness 7F] [Footer F7]
     public abstract LpxBool IsLedOn(); // [Header F0 00 20 29 02 0C] [Command 09] [isLedOn 01] [Footer F7]
     public abstract (LpxBool internalOn, LpxBool externalOn) GetLedFeedback(); // [Header F0 00 20 29 02 0C] [Command 0A] [internal 01] [external 01] [Footer F7]
     public abstract (AftertouchType type, AftertouchThreshold threshold) GetAftertouchConfig(); // [Header F0 00 20 29 02 0C] [Command 0B] [type 00] [threshold 01] [Footer F7]
