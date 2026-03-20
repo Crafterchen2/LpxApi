@@ -1,6 +1,6 @@
 ﻿namespace LpxApi.launchpad;
 
-public readonly struct LpxSignedByte : ISysExParameter
+public readonly struct LpxSignedByte : IByteTransmittable
 {
     public byte Value { get; }
 

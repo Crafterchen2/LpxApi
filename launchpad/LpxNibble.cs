@@ -1,6 +1,6 @@
 ﻿namespace LpxApi.launchpad;
 
-public readonly struct LpxNibble : ISysExParameter
+public readonly struct LpxNibble : IByteTransmittable
 {
     public byte Value { get; }
 

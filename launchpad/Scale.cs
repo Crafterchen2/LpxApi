@@ -1,6 +1,6 @@
 ﻿namespace LpxApi.launchpad;
 
-public readonly struct Scale : ISysExParameter
+public readonly struct Scale : IByteTransmittable
 {
     public bool CustomScale { get; }
     public LpxNibble? Preset { get; }

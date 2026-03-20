@@ -1,6 +1,6 @@
 ﻿namespace LpxApi.launchpad;
 
-public interface ISysExParameter
+public interface IByteTransmittable
 {
     public byte[] ToBytes();
 }

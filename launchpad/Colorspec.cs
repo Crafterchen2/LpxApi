@@ -39,7 +39,7 @@ public abstract class PureColorspec
     public sealed class Rgb(LpxByte r, LpxByte g, LpxByte b) : PureColorspec(ColorspecType.Rgb, [r, g, b]);
 }
 
-public abstract class Colorspec : PureColorspec, ISysExParameter
+public abstract class Colorspec : PureColorspec, IByteTransmittable
 {
     public readonly ButtonIndex Index;
 

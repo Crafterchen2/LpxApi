@@ -1,6 +1,6 @@
 ﻿namespace LpxApi.launchpad;
 
-public readonly struct ButtonIndex : ISysExParameter
+public readonly struct ButtonIndex : IByteTransmittable
 {
     public byte Index { get; }
 

@@ -1,6 +1,6 @@
 ﻿namespace LpxApi.launchpad;
 
-public readonly struct Palette : ISysExParameter
+public readonly struct Palette : IByteTransmittable
 {
     public byte Index { get; }
     public byte R { get; }

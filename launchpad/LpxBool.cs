@@ -1,6 +1,6 @@
 ﻿namespace LpxApi.launchpad;
 
-public readonly struct LpxBool : ISysExParameter
+public readonly struct LpxBool : IByteTransmittable
 {
     public const byte True = 0x01, False = 0x00;
     
