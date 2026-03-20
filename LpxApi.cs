@@ -1,5 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 using LpxApi.launchpad;
+using LpxApi.midi;
 using LpxApi.windows;
 
 namespace LpxApi;
@@ -67,12 +68,12 @@ public static class LpxApi
     private static void SendSysEx(IntPtr phmo, byte? command, byte[] data)
     {
         var sysex = command is null 
-            ? new byte[] { 0xf0, 0x00, 0x20, 0x29, 0x02, 0x0c } 
-            : new byte[] { 0xf0, 0x00, 0x20, 0x29, 0x02, 0x0c, command.Value };
+            ? new byte[] { (byte)StatusByte.SysExStart, 0x00, 0x20, 0x29, 0x02, 0x0c } 
+            : new byte[] { (byte)StatusByte.SysExStart, 0x00, 0x20, 0x29, 0x02, 0x0c, command.Value };
         var sysexPtr = Marshal.AllocHGlobal(Marshal.SizeOf<byte>() * (sysex.Length + data.Length + 1));
         Marshal.Copy(sysex, 0, sysexPtr, sysex.Length);
         Marshal.Copy(data, 0, sysexPtr + sysex.Length, data.Length);
-        Marshal.WriteByte(sysexPtr, sysex.Length + data.Length, 0xf7);
+        Marshal.WriteByte(sysexPtr, sysex.Length + data.Length, (byte)StatusByte.SysExEnd);
 
         var pmh = new MidiHeader(sysexPtr, (ulong)(sysex.Length + data.Length + 1), (ulong)(sysex.Length + data.Length + 1));
         var size = Marshal.SizeOf<MidiHeader>();
