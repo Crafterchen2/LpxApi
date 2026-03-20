@@ -1,4 +1,6 @@
-﻿namespace LpxApi.launchpad;
+﻿using LpxApi.launchpad;
+
+namespace LpxApi;
 
 public readonly struct UInt4 : IByteTransmittable
 {
