@@ -1,4 +1,4 @@
-﻿namespace LpxApi.launchpad;
+﻿namespace LpxApi.midi;
 
 public enum MidiChannel : byte
 {

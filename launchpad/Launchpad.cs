@@ -1,4 +1,6 @@
-﻿namespace LpxApi.launchpad;
+﻿using LpxApi.midi;
+
+namespace LpxApi.launchpad;
 
 public abstract class Launchpad : IDisposable
 {
