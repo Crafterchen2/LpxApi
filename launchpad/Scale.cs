@@ -3,10 +3,10 @@
 public readonly struct Scale : IByteTransmittable
 {
     public bool CustomScale { get; }
-    public LpxNibble? Preset { get; }
+    public UInt4? Preset { get; }
     public LpxBool[]? Definition { get; }
 
-    public Scale(LpxNibble preset)
+    public Scale(UInt4 preset)
     {
         CustomScale = false;
         Preset = preset;

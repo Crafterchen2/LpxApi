@@ -41,11 +41,11 @@ public class SignedByteOutOfRange(bool isSigned) : LpxApiException(isSigned
     }
 }
 
-public class NibbleOutOfRange() : LpxApiException("Maximum Value for nibbles is 0x0f (15).")
+public class UInt4OutOfRange() : LpxApiException("Maximum Value for nibbles is 0x0f (15).")
 {
     public static void Test(byte toTest)
     {
-        if (toTest > 0x0f) throw new NibbleOutOfRange();
+        if (toTest > 0x0f) throw new UInt4OutOfRange();
     }
 }
 
