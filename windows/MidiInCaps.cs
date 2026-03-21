@@ -16,7 +16,7 @@ public readonly struct MidiInCaps : IDeviceInfo
 
     public ulong Support { get; } // Reserved, must be zero
     
-    public IoType IoType => IoType.Out;
+    public IoType IoType => IoType.In;
 
     internal MidiInCaps(ushort wMid, ushort wPid, MmVersion vDriverVersion, string szPname, uint dwSupport)
     {
