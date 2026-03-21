@@ -7,7 +7,7 @@ public abstract class Launchpad : IDisposable
     //Technical information about Launchpad object
     #region TechInfo
     
-    public abstract LpxBool Invalid { get; }
+    public abstract bool Invalid { get; }
 
     #endregion
     
