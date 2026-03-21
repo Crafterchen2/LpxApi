@@ -4,13 +4,6 @@ namespace LpxApi.launchpad;
 
 public abstract class Launchpad : IDisposable
 {
-    #region Callback
-    
-    public delegate void ShortMsgCallbackDelegate(int status, int data1, int data2);
-    public ShortMsgCallbackDelegate? ShortMsgCallback { get; set; }
-
-    #endregion
-    
     //Technical information about Launchpad object
     #region TechInfo
     
@@ -20,12 +13,6 @@ public abstract class Launchpad : IDisposable
     
     //Technical functions for Launchpad object
     #region TechFunc
-
-    public void TransferCallback(Launchpad transferTo)
-    {
-        transferTo.ShortMsgCallback = ShortMsgCallback;
-        ShortMsgCallback = null;
-    }
 
     public abstract void Dispose();
 
