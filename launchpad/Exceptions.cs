@@ -72,3 +72,11 @@ public class InvalidNoOverlapWidth() : LpxApiException("width must be between 0 
         if (toTest > 8) throw new InvalidNoOverlapWidth();
     }
 }
+
+public class InvalidDecimalDigit() : LpxApiException("digit must be between 0 and 9 (inclusive).")
+{
+    public static void Test(byte toTest)
+    {
+        if (toTest > 9) throw new InvalidDecimalDigit();
+    }
+}
