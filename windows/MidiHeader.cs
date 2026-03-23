@@ -2,25 +2,26 @@
 
 namespace LpxApi.windows;
 
-public readonly struct MidiHeader
+[StructLayout(LayoutKind.Sequential)]
+public struct MidiHeader
 {
-    public IntPtr Data { get; }
-    public ulong BufferLength { get; }
-    public ulong BytesRecorded { get; }
-    public IntPtr User { get; }
-    public MidiHeaderFlags Flags { get; }
-    public IntPtr Next { get; }
-    public ulong Reserved { get; }
-    public ulong Offset { get; }
+    public IntPtr Data { get; set; }
+    public uint BufferLength { get; set; }
+    public uint BytesRecorded { get; set; }
+    public IntPtr User { get; set; }
+    public MidiHeaderFlags Flags { get; set; }
+    public IntPtr Next { get; set; }
+    public uint Reserved { get; set; }
+    public uint Offset { get; set; }
 
     [MarshalAs(UnmanagedType.ByValArray, SizeConst = 8)]
-    private readonly ulong[] _dwReserved;
+    private readonly IntPtr[] _dwReserved;
 
-    public ulong[] ReservedArr => _dwReserved;
+    public IntPtr[] ReservedArr => _dwReserved;
     
-    internal MidiHeader(IntPtr lpData, ulong dwBufferLength, ulong dwBytesRecorded)
+    internal MidiHeader(IntPtr lpData, uint dwBufferLength, uint dwBytesRecorded)
     {
-        _dwReserved = new ulong[8];
+        _dwReserved = new IntPtr[8];
         Data = lpData;
         BufferLength = dwBufferLength;
         BytesRecorded = dwBytesRecorded;
@@ -31,8 +32,8 @@ public readonly struct MidiHeader
         Offset = 0;
     }
 
-    internal MidiHeader(IntPtr lpData, ulong dwBufferLength, ulong dwBytesRecorded, IntPtr dwUser,
-        MidiHeaderFlags dwFlags, IntPtr lpNext, ulong reserved, ulong dwOffset, ulong[] dwReserved)
+    internal MidiHeader(IntPtr lpData, uint dwBufferLength, uint dwBytesRecorded, IntPtr dwUser,
+        MidiHeaderFlags dwFlags, IntPtr lpNext, uint reserved, uint dwOffset, IntPtr[] dwReserved)
     {
         _dwReserved = dwReserved;
         Data = lpData;

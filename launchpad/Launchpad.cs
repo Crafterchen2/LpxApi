@@ -62,6 +62,7 @@ public abstract class Launchpad : IDisposable
     #region SysExGet
     
     // The comment represents an example message that can be sent by the launchpad.
+    public abstract LpxVersion DeviceInquiry();
     public abstract Layout GetSelectedLayout(); // [Header F0 00 20 29 02 0C] [Command 00] [layout 01] [Footer F7]
     public abstract (LpxBool isHorizontal, Fader[] fader) GetFaderSetup(); // [Header F0 00 20 29 02 0C] [Command 01] 00 [orientation 01] [fader #0 00 00 00 00] [fader #1 01 00 00 00] [fader #2 02 00 00 00] [fader #3 03 00 00 00] [fader #4 04 00 00 00] [fader #5 05 00 00 00] [fader #6 06 00 00 00] [fader #7 07 00 00 00] [Footer F7]
     public abstract (Curve curve, UInt7 fixedVelocity) GetVelocityCurve(); // [Header F0 00 20 29 02 0C] [Command 04] [curve 03] [fixedVelocity 40] [Footer F7]

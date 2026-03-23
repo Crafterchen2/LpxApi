@@ -9,6 +9,7 @@ public class LpxApiException : Exception
 
 public class NoInDevice() : LpxApiException("No device of type 'IN' configured.");
 public class NoOutDevice() : LpxApiException("No device of type 'OUT' configured.");
+public class SenderBusy() : LpxApiException("The sender is busy and can't accept any new messages. Try again later.");
 
 public class UInt7OutOfRange() : LpxApiException($"Maximum Value for {nameof(UInt7)} is 0x7f (127).")
 {

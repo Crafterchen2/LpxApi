@@ -8,6 +8,15 @@ namespace LpxApi;
 public static class LpxApi
 {
     public const string Version = "0.5.0";
+    
+    private static readonly Lock _sendLock = new();
+    private static bool _isSending = false;
+    
+    public static bool IsSending 
+    { 
+        get { lock (_sendLock) { return _isSending; } }
+        private set { lock (_sendLock) { _isSending = value; } }
+    }
 
     public static long GetDeviceCount(IoType? type = null)
     {
@@ -65,22 +74,133 @@ public static class LpxApi
 
     public static void SendSysEx(IntPtr phmo, byte? command = null) => SendSysEx(phmo, command, []);
     public static void SendSysEx(IntPtr phmo, byte command, byte[] data) => SendSysEx(phmo, (byte?)command, data);
-    private static void SendSysEx(IntPtr phmo, byte? command, byte[] data)
+    public static void SendSysEx(IntPtr phmo, byte? command, byte[] data, bool omitDevName = false)
     {
-        var sysex = command is null 
-            ? new byte[] { (byte)StatusByte.SysExStart, 0x00, 0x20, 0x29, 0x02, 0x0c } 
-            : new byte[] { (byte)StatusByte.SysExStart, 0x00, 0x20, 0x29, 0x02, 0x0c, command.Value };
-        var sysexPtr = Marshal.AllocHGlobal(Marshal.SizeOf<byte>() * (sysex.Length + data.Length + 1));
-        Marshal.Copy(sysex, 0, sysexPtr, sysex.Length);
-        Marshal.Copy(data, 0, sysexPtr + sysex.Length, data.Length);
-        Marshal.WriteByte(sysexPtr, sysex.Length + data.Length, (byte)StatusByte.SysExEnd);
+        if (IsSending) throw new SenderBusy();
+        var totalLength = 1 + (omitDevName ? 0 : 5) + (command is null ? 0 : 1) + data.Length + 1;
+        var written = 0;
+        var sysexPtr = IntPtr.Zero;
+        var pmhPtr = IntPtr.Zero;
+        
+        try
+        {
+            // Allocate and populate the SysEx data buffer
+            sysexPtr = Marshal.AllocHGlobal(totalLength);
+            
+            Marshal.WriteByte(sysexPtr, written, (byte) StatusByte.SysExStart);
+            written++;
+            if (!omitDevName)
+            {
+                Marshal.Copy([(byte)0x00, (byte)0x20, (byte)0x29, (byte)0x02, (byte)0x0c], 0, sysexPtr + written, 5);
+                written += 5;
+            }
+            if (command is not null)
+            {
+                Marshal.WriteByte(sysexPtr, written, command.Value);
+                written++;
+            }
+            if (data.Length > 0)
+            {
+                Marshal.Copy(data, 0, sysexPtr + written, data.Length);
+                written += data.Length;
+            }
+            Marshal.WriteByte(sysexPtr, written, (byte)StatusByte.SysExEnd);
+            
+            // Create and populate the MIDI header
+            var pmh = new MidiHeader(sysexPtr, (uint)totalLength, (uint)totalLength);
+            var size = Marshal.SizeOf<MidiHeader>();
+            pmhPtr = Marshal.AllocHGlobal(size);
+            Marshal.StructureToPtr(pmh, pmhPtr, false);
+            
+            // Prepare the header
+            if (!Wap.midiOutPrepareHeader(phmo, pmhPtr, (uint)size))
+            {
+                throw new LpxApiException("midiOutPrepareHeader failed.");
+            }
+            
+            Dbg(113,"Header prepared.");
+            
+            // Double-check before setting IsSending
+            if (IsSending) throw new SenderBusy();
+            IsSending = true;
+            
+            Dbg(119,"Not Busy.");
+            
+            // Send the message
+            if (!Wap.midiOutLongMsg(phmo, pmhPtr, (uint)size))
+            {
+                IsSending = false;
+                Wap.midiOutUnprepareHeader(phmo, pmhPtr, (uint)size);
+                throw new LpxApiException("midiOutLongMsg failed.");
+            }
+            
+            Dbg(129, "Send.");
+            
+            // Asynchronously wait for completion and clean up
+            var sysexPtrCopy = sysexPtr;
+            var pmhPtrCopy = pmhPtr;
+            var sizeCopy = size;
+            
+            Task.Run(() =>
+            {
+                
+                Dbg(139, "Task started.");
+                
+                try
+                {
+                    var hdr = Marshal.PtrToStructure<MidiHeader>(pmhPtrCopy);
+                    var maxWait = 5000; // 5 seconds timeout
+                    var waited = 0;
+                    
+                    while (!hdr.Flags.Done && waited < maxWait)
+                    {
+                        
+                        Dbg(150, $"Waiting. Already waited {waited}ms");
+                        
+                        Thread.Sleep(10);
+                        waited += 10;
+                        hdr = Marshal.PtrToStructure<MidiHeader>(pmhPtrCopy);
+                    }
+                    
+                    if (waited >= maxWait)
+                    {
+                        Console.WriteLine("Warning: SysEx send timeout");
+                    }
+                }
+                finally
+                {
+                    
+                    Dbg(165, "Wait over.");
+                    
+                    IsSending = false;
+                    Wap.midiOutUnprepareHeader(phmo, pmhPtrCopy, (uint)sizeCopy);
+                    
+                    Dbg(170, "Unprepared.");
+                    
+                    Marshal.FreeHGlobal(pmhPtrCopy);
+                    Marshal.FreeHGlobal(sysexPtrCopy);
+                }
+            });
+        }
+        catch
+        {
+            Dbg(179,"Entered Catch.");
+            
+            // Clean up on error (only if async task wasn't started)
+            if (pmhPtr != IntPtr.Zero && !IsSending)
+            {
+                Marshal.FreeHGlobal(pmhPtr);
+            }
+            if (sysexPtr != IntPtr.Zero && !IsSending)
+            {
+                Marshal.FreeHGlobal(sysexPtr);
+            }
+            throw;
+        }
+    }
 
-        var pmh = new MidiHeader(sysexPtr, (ulong)(sysex.Length + data.Length + 1), (ulong)(sysex.Length + data.Length + 1));
-        var size = Marshal.SizeOf<MidiHeader>();
-        var pmhPtr = Marshal.AllocHGlobal(size);
-        Marshal.StructureToPtr(pmh, pmhPtr, false);
-        if (!Wap.midiOutPrepareHeader(phmo, pmhPtr, (uint)size)) throw new LpxApiException("midiOutPrepareHeader failed.");
-        if (!Wap.midiOutLongMsg(phmo, pmhPtr, size)) throw new LpxApiException("midiOutLongMsg failed.");
-        if (!Wap.midiOutUnprepareHeader(phmo, pmhPtr, (uint)size)) throw new LpxApiException("midiOutUnprepareHeader failed");
+    private static void Dbg(int line, string msg)
+    {
+        Console.WriteLine($"--{{DBG: SendSysEx}}--< {line}: {msg}");
     }
 }

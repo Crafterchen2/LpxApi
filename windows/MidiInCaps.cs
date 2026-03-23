@@ -14,7 +14,7 @@ public readonly struct MidiInCaps : IDeviceInfo
 
     public string ProductName => szPname; // Auto-Property is not possible because of the decorator.
 
-    public ulong Support { get; } // Reserved, must be zero
+    public uint Support { get; } // Reserved, must be zero
     
     public IoType IoType => IoType.In;
 

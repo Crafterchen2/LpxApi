@@ -26,16 +26,16 @@ internal static class Wap //Windows Api wraPper = WAP
     internal static extern MmResult midiInGetDevCaps(uint uDeviceId, out MidiInCaps caps, uint cbMidiInCaps);
 
     [DllImport("winmm.dll")]
-    internal static extern MmResult midiOutOpen(out IntPtr phmo, uint uDeviceId, MidiOutProc dwCallback, IntPtr dwInstance, ulong fdwOpen);
+    internal static extern MmResult midiOutOpen(out IntPtr phmo, uint uDeviceId, MidiOutProc dwCallback, IntPtr dwInstance, uint fdwOpen);
 
     [DllImport("winmm.dll")]
-    internal static extern MmResult midiInOpen(out IntPtr phmi, uint uDeviceId, MidiInProc dwCallback, IntPtr dwInstance, ulong fdwOpen);
+    internal static extern MmResult midiInOpen(out IntPtr phmi, uint uDeviceId, MidiInProc dwCallback, IntPtr dwInstance, uint fdwOpen);
 
     [DllImport("winmm.dll")]
     internal static extern MmResult midiOutPrepareHeader(IntPtr handle, IntPtr header, uint size);
 
     [DllImport("winmm.dll")]
-    internal static extern MmResult midiOutLongMsg(IntPtr hmo, IntPtr pmh, int cbmh);
+    internal static extern MmResult midiOutLongMsg(IntPtr hmo, IntPtr pmh, uint cbmh);
 
     [DllImport("winmm.dll")]
     internal static extern MmResult midiOutUnprepareHeader(IntPtr hmo, IntPtr header, uint size);
@@ -52,6 +52,18 @@ internal static class Wap //Windows Api wraPper = WAP
     [DllImport("winmm.dll")]
     internal static extern MmResult midiOutClose(IntPtr phmo);
     
-    internal delegate void MidiInProc(IntPtr hMidiIn, int wMsg, IntPtr dwInstance, IntPtr dwParam1, IntPtr dwParam2);
-    internal delegate void MidiOutProc(IntPtr hMidiOut, int wMsg, IntPtr dwInstance, IntPtr dwParam1, IntPtr dwParam2);
+    [DllImport("winmm.dll")]
+    internal static extern MmResult midiInPrepareHeader(IntPtr hmi, IntPtr lpMidiInHdr, uint cbMidiInHdr);
+
+    [DllImport("winmm.dll")]
+    internal static extern MmResult midiInUnprepareHeader(IntPtr hmi, IntPtr lpMidiInHdr, uint cbMidiInHdr);
+
+    [DllImport("winmm.dll")]
+    internal static extern MmResult midiInAddBuffer(IntPtr hmi, IntPtr lpMidiInHdr, uint cbMidiInHdr);
+
+    [DllImport("winmm.dll")]
+    internal static extern MmResult midiInReset(IntPtr hmi);
+    
+    internal delegate void MidiInProc(IntPtr hMidiIn, uint wMsg, IntPtr dwInstance, IntPtr dwParam1, IntPtr dwParam2);
+    internal delegate void MidiOutProc(IntPtr hMidiOut, uint wMsg, IntPtr dwInstance, IntPtr dwParam1, IntPtr dwParam2);
 }
