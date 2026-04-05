@@ -32,28 +32,50 @@ public abstract class PureColorspec
             _ => new Colorspec.Static(index, Data[0])
         };
     }
+    
+    public interface IStatic
+    {
+        public Palette Palette { get; }
+    }
+    
+    public interface IFlash
+    {
+        public Palette PaletteA { get; }
+        public Palette PaletteB { get; }
+    }
 
-    public sealed class Static(Palette palette) 
-        : PureColorspec(ColorspecType.Static, [palette])
+    public interface IPulse
+    {
+        public Palette Palette { get; }
+    }
+    public interface IRgb
+    {
+        public UInt7 R { get; }
+        public UInt7 G { get; }
+        public UInt7 B { get; }
+    }
+
+    public sealed class Static(Palette palette)
+        : PureColorspec(ColorspecType.Static, [palette]), IStatic
     {
         public Palette Palette { get; } = palette;
     }
 
     public sealed class Flash(Palette paletteA, Palette paletteB)
-        : PureColorspec(ColorspecType.Flash, [paletteA, paletteB])
+        : PureColorspec(ColorspecType.Flash, [paletteA, paletteB]), IFlash
     {
         public Palette PaletteA { get; } = paletteA;
         public Palette PaletteB { get; } = paletteB;
     }
 
     public sealed class Pulse(Palette palette) 
-        : PureColorspec(ColorspecType.Pulse, [palette])
+        : PureColorspec(ColorspecType.Pulse, [palette]), IPulse
     {
         public Palette Palette { get; } = palette;
     }
 
     public sealed class Rgb(UInt7 r, UInt7 g, UInt7 b) 
-        : PureColorspec(ColorspecType.Rgb, [r, g, b])
+        : PureColorspec(ColorspecType.Rgb, [r, g, b]), IRgb
     {
         public UInt7 R { get; } = r;
         public UInt7 G { get; } = g;
@@ -90,26 +112,26 @@ public abstract class Colorspec : PureColorspec, IByteTransmittable
     }
 
     public new sealed class Static(ButtonIndex index, Palette palette) 
-        : Colorspec(ColorspecType.Static, index, [palette])
+        : Colorspec(ColorspecType.Static, index, [palette]), IStatic
     {
         public Palette Palette { get; } = palette;
     }
     
     public new sealed class Flash(ButtonIndex index, Palette paletteA, Palette paletteB) 
-        : Colorspec(ColorspecType.Flash, index, [paletteA, paletteB])
+        : Colorspec(ColorspecType.Flash, index, [paletteA, paletteB]), IFlash
     {
         public Palette PaletteA { get; } = paletteA;
         public Palette PaletteB { get; } = paletteB;
     }
     
     public new sealed class Pulse(ButtonIndex index, Palette palette) 
-        : Colorspec(ColorspecType.Pulse, index, [palette])
+        : Colorspec(ColorspecType.Pulse, index, [palette]), IPulse
     {
         public Palette Palette { get; } = palette;
     }
     
     public new sealed class Rgb(ButtonIndex index, UInt7 r, UInt7 g, UInt7 b) 
-        : Colorspec(ColorspecType.Rgb, index, [r, g, b])
+        : Colorspec(ColorspecType.Rgb, index, [r, g, b]), IRgb
     {
         public UInt7 R { get; } = r;
         public UInt7 G { get; } = g;
