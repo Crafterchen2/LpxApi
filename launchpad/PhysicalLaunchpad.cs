@@ -37,9 +37,10 @@ public class PhysicalLaunchpad : Launchpad
         _incomingProc = Incoming; 
         _outgoingProc = Outgoing;
 
+        MmResult lastResult;
         if (uDeviceIdIn is not null)
         {
-            if (!Wap.midiInOpen(out var phmi, uDeviceIdIn.Value, _incomingProc, IntPtr.Zero, Wap.CallbackFunction)) throw new NoInDevice();
+            if (!(lastResult = Wap.midiInOpen(out var phmi, uDeviceIdIn.Value, _incomingProc, IntPtr.Zero, Wap.CallbackFunction))) throw new NoInDevice(lastResult);
             _phmi = phmi;
             if (_phmi is null) throw new NoInDevice();
             
@@ -50,7 +51,7 @@ public class PhysicalLaunchpad : Launchpad
 
         if (uDeviceIdOut is not null)
         {
-            if (!Wap.midiOutOpen(out var phmo, uDeviceIdOut.Value, _outgoingProc, IntPtr.Zero, Wap.CallbackFunction)) throw new NoOutDevice();
+            if (!(lastResult = Wap.midiOutOpen(out var phmo, uDeviceIdOut.Value, _outgoingProc, IntPtr.Zero, Wap.CallbackFunction))) throw new NoOutDevice(lastResult);
             _phmo = phmo;
             if (_phmo is null) throw new NoOutDevice();
         }
@@ -473,7 +474,7 @@ public class PhysicalLaunchpad : Launchpad
             throw;
         }
 
-        return new LpxVersion(0, 0, 0, 0);
+        return new LpxVersion(0, 0, 0, 0); //Todo(unfinished): Still returning garbage data
     }
 
     public override Layout GetSelectedLayout()
