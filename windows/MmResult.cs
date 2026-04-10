@@ -9,4 +9,18 @@ public readonly struct MmResult(uint value)
     public static implicit operator MmResult(uint i) => new(i);
     public static implicit operator uint(MmResult i) => i.Value;
     public static implicit operator bool(MmResult i) => i.NoError;
+
+    public override string ToString()
+    {
+        string err;
+        try
+        {
+            err = ((MmSysErr)Value).ToString();
+        }
+        catch (Exception _)
+        {
+            err = "Undefined";
+        }
+        return $"{Value} ({err})";
+    }
 }
