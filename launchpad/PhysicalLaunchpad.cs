@@ -12,8 +12,9 @@ public class PhysicalLaunchpad : Launchpad
     private readonly Wap.MidiOutProc _outgoingProc;
     private readonly List<IntPtr> _inputBuffers = [];
     private readonly List<IntPtr> _inputHeaders = [];
+    private bool _disposeCalled;
 
-    public override bool Invalid => _phmi is null && _phmo is null;
+    public override bool Invalid => _disposeCalled || (_phmi is null && _phmo is null);
     
     public PhysicalLaunchpad(uint? uDeviceIdIn = null, uint? uDeviceIdOut = null)
     {
@@ -34,7 +35,7 @@ public class PhysicalLaunchpad : Launchpad
             
             PrepareInputBuffers(_phmi.Value);
             
-            if (!Wap.midiInStart(_phmi.Value)) throw new NoInDevice();
+            if (!(lastResult = Wap.midiInStart(_phmi.Value))) throw new NoInDevice(lastResult);
         }
 
         if (uDeviceIdOut is not null)
@@ -81,105 +82,114 @@ public class PhysicalLaunchpad : Launchpad
 
     private void Incoming(IntPtr hMidiIn, uint wMsg, IntPtr dwInstance, IntPtr dwParam1, IntPtr dwParam2)
     {
-        switch (wMsg)
+        if (Invalid) return;
+        try
         {
-            case Wap.MimOpen:
-                Console.WriteLine("MIDI Input opened");
-                break;
+            switch (wMsg)
+            {
+                case Wap.MimOpen:
+                    Console.WriteLine("MIDI Input opened");
+                    break;
 
-            case Wap.MimClose:
-                Console.WriteLine("MIDI Input closed");
-                break;
+                case Wap.MimClose:
+                    Console.WriteLine("MIDI Input closed");
+                    break;
 
-            case Wap.MimData:
-                // Short MIDI message (3 bytes packed into dwParam1)
-                var data = (uint)dwParam1;
-                var status = (StatusByte)(data & 0xFF);
-                var data1 = (byte)((data >> 8) & 0xFF);
-                var data2 = (byte)((data >> 16) & 0xFF);
-                Console.WriteLine($"Short Message: Status=0x{status}, Data1=0x{data1:X2}, Data2=0x{data2:X2}");
-                InvokeMidiReceived(status, data1, data2);
-                ChannelStatus chStatus = status;
-                if (chStatus.Type 
-                    is ChannelStatusType.NoteOn 
-                    or ChannelStatusType.PolyAftertouch 
-                    or ChannelStatusType.NoteOff)
-                {
-                    InvokeButtonAny(status, data1, data2);
-                    switch (chStatus.Type)
+                case Wap.MimData:
+                    // Short MIDI message (3 bytes packed into dwParam1)
+                    var data = (uint)dwParam1;
+                    var status = (StatusByte)(data & 0xFF);
+                    var data1 = (byte)((data >> 8) & 0xFF);
+                    var data2 = (byte)((data >> 16) & 0xFF);
+                    Console.WriteLine($"Short Message: Status=0x{status}, Data1=0x{data1:X2}, Data2=0x{data2:X2}");
+                    InvokeMidiReceived(status, data1, data2);
+                    ChannelStatus chStatus = status;
+                    if (chStatus.Type 
+                        is ChannelStatusType.NoteOn 
+                        or ChannelStatusType.PolyAftertouch 
+                        or ChannelStatusType.NoteOff
+                        or ChannelStatusType.CmChange)
                     {
-                        case ChannelStatusType.NoteOn or ChannelStatusType.NoteOff when data2 == 0:
-                            InvokeButtonReleased(chStatus.Channel, data1);
-                            break;
-                        case ChannelStatusType.NoteOn:
-                            InvokeButtonPressed(chStatus.Channel, data1, data2);
-                            break;
-                        case ChannelStatusType.PolyAftertouch:
-                            InvokeButtonHold(chStatus.Channel, data1, data2);
-                            break;
-                    }
-                }
-                break;
-
-            case Wap.MimLongData:
-                // SysEx message - dwParam1 points to MIDIHDR
-                try
-                {
-                    var header = Marshal.PtrToStructure<MidiHeader>(dwParam1);
-                    if (header.BytesRecorded > 0)
-                    {
-                        var sysexData = new byte[header.BytesRecorded];
-                        Marshal.Copy(header.Data, sysexData, 0, (int)header.BytesRecorded);
-                        
-                        Console.Write("SysEx received: ");
-                        foreach (var b in sysexData)
+                        InvokeButtonAny(status, data1, data2);
+                        switch (chStatus.Type)
                         {
-                            Console.Write($"{b:X2} ");
+                            case ChannelStatusType.NoteOn or ChannelStatusType.NoteOff or ChannelStatusType.CmChange when data2 == 0:
+                                InvokeButtonReleased(chStatus.Channel, data1);
+                                break;
+                            case ChannelStatusType.NoteOn or ChannelStatusType.CmChange:
+                                InvokeButtonPressed(chStatus.Channel, data1, data2);
+                                break;
+                            case ChannelStatusType.PolyAftertouch:
+                                InvokeButtonHold(chStatus.Channel, data1, data2);
+                                break;
                         }
-                        Console.WriteLine();
                     }
+                    break;
 
-                    // Re-add the buffer for continued reception
-                    Wap.midiInUnprepareHeader(hMidiIn, dwParam1, (uint)Marshal.SizeOf<MidiHeader>());
+                case Wap.MimLongData:
+                    // SysEx message - dwParam1 points to MIDIHDR
+                    try
+                    {
+                        var header = Marshal.PtrToStructure<MidiHeader>(dwParam1);
+                        if (header.BytesRecorded > 0)
+                        {
+                            var sysexData = new byte[header.BytesRecorded];
+                            Marshal.Copy(header.Data, sysexData, 0, (int)header.BytesRecorded);
+                        
+                            Console.Write("SysEx received: ");
+                            foreach (var b in sysexData)
+                            {
+                                Console.Write($"{b:X2} ");
+                            }
+                            Console.WriteLine();
+                        }
+
+                        // Re-add the buffer for continued reception
+                        Wap.midiInUnprepareHeader(hMidiIn, dwParam1, (uint)Marshal.SizeOf<MidiHeader>());
                     
-                    // Reset the header
-                    var newHeader = new MidiHeader(header.Data, header.BufferLength, 0);
-                    Marshal.StructureToPtr(newHeader, dwParam1, false);
+                        // Reset the header
+                        var newHeader = new MidiHeader(header.Data, header.BufferLength, 0);
+                        Marshal.StructureToPtr(newHeader, dwParam1, false);
                     
-                    Wap.midiInPrepareHeader(hMidiIn, dwParam1, (uint)Marshal.SizeOf<MidiHeader>());
-                    Wap.midiInAddBuffer(hMidiIn, dwParam1, (uint)Marshal.SizeOf<MidiHeader>());
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Error processing SysEx: {ex.Message}");
-                }
-                break;
+                        Wap.midiInPrepareHeader(hMidiIn, dwParam1, (uint)Marshal.SizeOf<MidiHeader>());
+                        Wap.midiInAddBuffer(hMidiIn, dwParam1, (uint)Marshal.SizeOf<MidiHeader>());
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error processing SysEx: {ex.Message}");
+                    }
+                    break;
 
-            case Wap.MimError:
-                Console.WriteLine($"MIDI Input Error: {dwParam1}");
-                break;
+                case Wap.MimError:
+                    Console.WriteLine($"MIDI Input Error: {dwParam1}");
+                    break;
 
-            case Wap.MimLongError:
-                Console.WriteLine($"MIDI Input Long Error: {dwParam1}");
-                break;
+                case Wap.MimLongError:
+                    Console.WriteLine($"MIDI Input Long Error: {dwParam1}");
+                    break;
 
-            case Wap.MimMoreData:
-                Console.WriteLine("MIDI Input buffer overflow - data lost!");
-                break;
+                case Wap.MimMoreData:
+                    Console.WriteLine("MIDI Input buffer overflow - data lost!");
+                    break;
 
-            default:
-                Console.WriteLine($"Unknown MIDI message: wMsg=0x{wMsg:X}");
-                break;
+                default:
+                    Console.WriteLine($"Unknown MIDI message: wMsg=0x{wMsg:X}");
+                    break;
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"Error while in Incoming: {e}\n{e.StackTrace}");
         }
     }
 
     public override void Dispose()
     {
+        _disposeCalled = true;
         if (_phmi is not null)
         {
             Wap.midiInStop(_phmi.Value);
-            //Wap.midiInReset(_phmi.Value); Todo(bug): This hangs, why?
-            // Do I need to wait here for midiInReset to be done?
+            Wap.midiInReset(_phmi.Value); 
             for (var i = 0; i < _inputHeaders.Count; i++)
             {
                 Wap.midiInUnprepareHeader(_phmi.Value, _inputHeaders[i], (uint)Marshal.SizeOf<MidiHeader>());
