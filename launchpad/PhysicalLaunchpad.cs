@@ -13,18 +13,6 @@ public class PhysicalLaunchpad : Launchpad
     private readonly List<IntPtr> _inputBuffers = [];
     private readonly List<IntPtr> _inputHeaders = [];
 
-    public delegate void MidiReceivedDelegate(ChannelStatus status, UInt7 data1, UInt7 data2);
-    public delegate void ButtonAnyDelegate(ChannelStatus status, ButtonIndex index, UInt7 velocity);
-    public delegate void ButtonPressedDelegate(MidiChannel channel, ButtonIndex index, UInt7 velocity);
-    public delegate void ButtonHoldDelegate(MidiChannel channel, ButtonIndex index, UInt7 pressure);
-    public delegate void ButtonReleasedDelegate(MidiChannel channel, ButtonIndex index);
-    
-    public event MidiReceivedDelegate? MidiReceived;
-    public event ButtonAnyDelegate? ButtonAny;
-    public event ButtonPressedDelegate? ButtonPressed;
-    public event ButtonHoldDelegate? ButtonHold;
-    public event ButtonReleasedDelegate? ButtonReleased;
-
     public override bool Invalid => _phmi is null && _phmo is null;
     
     public PhysicalLaunchpad(uint? uDeviceIdIn = null, uint? uDeviceIdOut = null)
@@ -110,24 +98,24 @@ public class PhysicalLaunchpad : Launchpad
                 var data1 = (byte)((data >> 8) & 0xFF);
                 var data2 = (byte)((data >> 16) & 0xFF);
                 Console.WriteLine($"Short Message: Status=0x{status}, Data1=0x{data1:X2}, Data2=0x{data2:X2}");
-                Task.Run(() => MidiReceived?.Invoke(status, data1, data2));
+                InvokeMidiReceived(status, data1, data2);
                 ChannelStatus chStatus = status;
                 if (chStatus.Type 
                     is ChannelStatusType.NoteOn 
                     or ChannelStatusType.PolyAftertouch 
                     or ChannelStatusType.NoteOff)
                 {
-                    Task.Run(() => ButtonAny?.Invoke(status, data1, data2));
+                    InvokeButtonAny(status, data1, data2);
                     switch (chStatus.Type)
                     {
                         case ChannelStatusType.NoteOn or ChannelStatusType.NoteOff when data2 == 0:
-                            Task.Run(() => ButtonReleased?.Invoke(chStatus.Channel, data1));
+                            InvokeButtonReleased(chStatus.Channel, data1);
                             break;
                         case ChannelStatusType.NoteOn:
-                            Task.Run(() => ButtonPressed?.Invoke(chStatus.Channel, data1, data2));
+                            InvokeButtonPressed(chStatus.Channel, data1, data2);
                             break;
                         case ChannelStatusType.PolyAftertouch:
-                            Task.Run(() => ButtonHold?.Invoke(chStatus.Channel, data1, data2));
+                            InvokeButtonHold(chStatus.Channel, data1, data2);
                             break;
                     }
                 }

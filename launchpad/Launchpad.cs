@@ -16,6 +16,43 @@ public abstract class Launchpad : IDisposable
 
     public abstract void Dispose();
 
+    public delegate void MidiReceivedDelegate(ChannelStatus status, UInt7 data1, UInt7 data2);
+    public delegate void ButtonAnyDelegate(ChannelStatus status, ButtonIndex index, UInt7 velocity);
+    public delegate void ButtonPressedDelegate(MidiChannel channel, ButtonIndex index, UInt7 velocity);
+    public delegate void ButtonHoldDelegate(MidiChannel channel, ButtonIndex index, UInt7 pressure);
+    public delegate void ButtonReleasedDelegate(MidiChannel channel, ButtonIndex index);
+    
+    public event MidiReceivedDelegate? MidiReceived;
+    public event ButtonAnyDelegate? ButtonAny;
+    public event ButtonPressedDelegate? ButtonPressed;
+    public event ButtonHoldDelegate? ButtonHold;
+    public event ButtonReleasedDelegate? ButtonReleased;
+
+    protected void InvokeMidiReceived(ChannelStatus status, UInt7 data1, UInt7 data2)
+    {
+        Task.Run(() => MidiReceived?.Invoke(status, data1, data2));
+    }
+    
+    protected void InvokeButtonAny(ChannelStatus status, ButtonIndex index, UInt7 velocity)
+    {
+        Task.Run(() => ButtonAny?.Invoke(status, index, velocity));
+    }
+
+    protected void InvokeButtonPressed(MidiChannel channel, ButtonIndex index, UInt7 velocity)
+    {
+        Task.Run(() => ButtonPressed?.Invoke(channel, index, velocity));
+    }
+
+    protected void InvokeButtonHold(MidiChannel channel, ButtonIndex index, UInt7 pressure)
+    {
+        Task.Run(() => ButtonHold?.Invoke(channel, index, pressure));
+    }
+
+    protected void InvokeButtonReleased(MidiChannel channel, ButtonIndex index)
+    {
+        Task.Run(() => ButtonReleased?.Invoke(channel, index));
+    }
+
     #endregion
     
     //Convenience functions
