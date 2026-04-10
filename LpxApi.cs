@@ -9,13 +9,13 @@ public static class LpxApi
 {
     public const string Version = "0.5.0";
     
-    private static readonly Lock _sendLock = new();
+    private static readonly Lock SendLock = new();
     private static bool _isSending = false;
     
     public static bool IsSending 
     { 
-        get { lock (_sendLock) { return _isSending; } }
-        private set { lock (_sendLock) { _isSending = value; } }
+        get { lock (SendLock) { return _isSending; } }
+        private set { lock (SendLock) { _isSending = value; } }
     }
 
     public static long GetDeviceCount(IoType? type = null)
