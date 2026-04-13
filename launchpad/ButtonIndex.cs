@@ -18,6 +18,19 @@ public readonly struct ButtonIndex : IByteTransmittable
     public static implicit operator ButtonIndex(MenuButtonIndex i) => new((byte)i);
     public static explicit operator MenuButtonIndex(ButtonIndex i) => (MenuButtonIndex)i.Index;
 
+    public static bool operator ==(ButtonIndex i, byte o) => i.Index == o;
+    public static bool operator ==(ButtonIndex i, ButtonIndex o) => i.Index == o.Index;
+    public static bool operator ==(ButtonIndex i, MenuButtonIndex o) => i.Index == (byte)o;
+
+    public static bool operator !=(ButtonIndex i, byte o) => i.Index != o;
+    public static bool operator !=(ButtonIndex i, ButtonIndex o) => i.Index != o.Index;
+    public static bool operator !=(ButtonIndex i, MenuButtonIndex o) => i.Index != (byte)o;
+
+    public override string ToString()
+    {
+        return $"{Index} ({(X == 9 || Y == 9 ? (MenuButtonIndex)Index : "Grid")})";
+    }
+
     public byte[] ToBytes() => [Index];
 
     public bool IsMenuButton => Index != 99 && (X == 9 || Y == 9);
