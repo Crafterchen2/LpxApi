@@ -101,7 +101,7 @@ public class PhysicalLaunchpad : Launchpad
                     var status = (StatusByte)(data & 0xFF);
                     var data1 = (byte)((data >> 8) & 0xFF);
                     var data2 = (byte)((data >> 16) & 0xFF);
-                    Console.WriteLine($"Short Message: Status=0x{status}, Data1=0x{data1:X2}, Data2=0x{data2:X2}");
+                    //Console.WriteLine($"Short Message: Status=0x{status}, Data1=0x{data1:X2}, Data2=0x{data2:X2}");
                     InvokeMidiReceived(status, data1, data2);
                     ChannelStatus chStatus = status;
                     if (chStatus.Type 
