@@ -118,13 +118,13 @@ public static class LpxApi
                 throw new LpxApiException("midiOutPrepareHeader failed.");
             }
             
-            Dbg(113,"Header prepared.");
+            SendSysExDebugPrints(113,"Header prepared.");
             
             // Double-check before setting IsSending
             if (IsSending) throw new SenderBusy();
             IsSending = true;
             
-            Dbg(119,"Not Busy.");
+            SendSysExDebugPrints(119,"Not Busy.");
             
             // Send the message
             if (!Wap.midiOutLongMsg(phmo, pmhPtr, (uint)size))
@@ -134,7 +134,7 @@ public static class LpxApi
                 throw new LpxApiException("midiOutLongMsg failed.");
             }
             
-            Dbg(129, "Send.");
+            SendSysExDebugPrints(129, "Send.");
             
             // Asynchronously wait for completion and clean up
             var sysexPtrCopy = sysexPtr;
@@ -144,7 +144,7 @@ public static class LpxApi
             Task.Run(() =>
             {
                 
-                Dbg(139, "Task started.");
+                SendSysExDebugPrints(139, "Task started.");
                 
                 try
                 {
@@ -155,7 +155,7 @@ public static class LpxApi
                     while (!hdr.Flags.Done && waited < maxWait)
                     {
                         
-                        Dbg(150, $"Waiting. Already waited {waited}ms");
+                        SendSysExDebugPrints(150, $"Waiting. Already waited {waited}ms");
                         
                         Thread.Sleep(10);
                         waited += 10;
@@ -170,12 +170,12 @@ public static class LpxApi
                 finally
                 {
                     
-                    Dbg(165, "Wait over.");
+                    SendSysExDebugPrints(165, "Wait over.");
                     
                     IsSending = false;
                     Wap.midiOutUnprepareHeader(phmo, pmhPtrCopy, (uint)sizeCopy);
                     
-                    Dbg(170, "Unprepared.");
+                    SendSysExDebugPrints(170, "Unprepared.");
                     
                     Marshal.FreeHGlobal(pmhPtrCopy);
                     Marshal.FreeHGlobal(sysexPtrCopy);
@@ -184,7 +184,7 @@ public static class LpxApi
         }
         catch
         {
-            Dbg(179,"Entered Catch.");
+            SendSysExDebugPrints(179,"Entered Catch.");
             
             // Clean up on error (only if async task wasn't started)
             if (pmhPtr != IntPtr.Zero && !IsSending)
@@ -199,8 +199,8 @@ public static class LpxApi
         }
     }
 
-    private static void Dbg(int line, string msg)
+    private static void SendSysExDebugPrints(int line, string msg)
     {
-        Console.WriteLine($"--{{DBG: SendSysEx}}--< {line}: {msg}");
+        //Console.WriteLine($"--{{DBG: SendSysEx}}--< {line}: {msg}");
     }
 }
