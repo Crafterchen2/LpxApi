@@ -107,8 +107,13 @@ public abstract class Colorspec : PureColorspec, IByteTransmittable
 
     public override int GetHashCode()
     {
-        //This is not perfect (in fact, a perfect hash function might be impossible), as 99 = 99 + Static or 99 = 98 + Flash.
-        return ColorHash + (Index << 24);
+        //[_III IIII _000 0000 T111 1111 t222 2222]
+        var rv = ColorHash & 0x00_ffffff;
+        var type = (int)Type;
+        rv |= Index << 24;
+        rv |= (type & 0b0000_0001) << 7;
+        rv |= (type & 0b0000_0010) << 15;
+        return rv;
     }
 
     public new sealed class Static(ButtonIndex index, Palette palette) 
