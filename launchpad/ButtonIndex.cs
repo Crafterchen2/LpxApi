@@ -4,6 +4,8 @@ public readonly struct ButtonIndex : IByteTransmittable
 {
     public byte Index { get; }
 
+    public ButtonIndex(int x, int y) : this((byte)(y * 10 + x)) {}
+
     public ButtonIndex(byte index)
     {
         InvalidIndex.Test(index);
