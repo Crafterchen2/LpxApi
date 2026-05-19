@@ -1,6 +1,6 @@
 ﻿namespace LpxApi.launchpad;
 
-public readonly struct NoOverlapWidth : IByteTransmittable
+public readonly record struct NoOverlapWidth : IByteTransmittable
 {
     public byte Value { get; }
 

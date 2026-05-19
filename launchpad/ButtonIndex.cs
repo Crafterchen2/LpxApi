@@ -1,6 +1,6 @@
 ﻿namespace LpxApi.launchpad;
 
-public readonly struct ButtonIndex : IByteTransmittable
+public readonly record struct ButtonIndex : IByteTransmittable
 {
     public byte Index { get; }
 
@@ -21,11 +21,9 @@ public readonly struct ButtonIndex : IByteTransmittable
     public static explicit operator MenuButtonIndex(ButtonIndex i) => (MenuButtonIndex)i.Index;
 
     public static bool operator ==(ButtonIndex i, byte o) => i.Index == o;
-    public static bool operator ==(ButtonIndex i, ButtonIndex o) => i.Index == o.Index;
     public static bool operator ==(ButtonIndex i, MenuButtonIndex o) => i.Index == (byte)o;
 
     public static bool operator !=(ButtonIndex i, byte o) => i.Index != o;
-    public static bool operator !=(ButtonIndex i, ButtonIndex o) => i.Index != o.Index;
     public static bool operator !=(ButtonIndex i, MenuButtonIndex o) => i.Index != (byte)o;
 
     public override string ToString()

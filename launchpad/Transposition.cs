@@ -1,6 +1,6 @@
 ﻿namespace LpxApi.launchpad;
 
-public readonly struct Transposition : IByteTransmittable
+public readonly record struct Transposition : IByteTransmittable
 {
     public LpxSignedByte Value { get; }
 

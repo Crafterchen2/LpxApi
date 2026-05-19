@@ -17,7 +17,7 @@ public readonly struct MmResult(uint value)
         {
             err = ((MmSysErr)Value).ToString();
         }
-        catch (Exception _)
+        catch
         {
             err = "Undefined";
         }

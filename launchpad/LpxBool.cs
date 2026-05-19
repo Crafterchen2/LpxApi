@@ -1,6 +1,6 @@
 ﻿namespace LpxApi.launchpad;
 
-public readonly struct LpxBool : IByteTransmittable
+public readonly record struct LpxBool : IByteTransmittable
 {
     public const byte True = 0x01, False = 0x00;
     
@@ -21,8 +21,5 @@ public readonly struct LpxBool : IByteTransmittable
     public static implicit operator byte(LpxBool b) => b.Value;
     public static implicit operator LpxBool(byte b) => new(b);
 
-    public byte[] ToBytes()
-    {
-        return [Value];
-    }
+    public byte[] ToBytes() => [Value];
 }

@@ -1,6 +1,6 @@
 ﻿namespace LpxApi.launchpad;
 
-public readonly struct Scale : IByteTransmittable
+public readonly record struct Scale : IByteTransmittable
 {
     public bool CustomScale { get; }
     public UInt4? Preset { get; }

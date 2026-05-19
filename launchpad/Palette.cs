@@ -1,12 +1,13 @@
-﻿namespace LpxApi.launchpad;
+﻿using System.Diagnostics.CodeAnalysis;
 
-public readonly struct Palette : IByteTransmittable
+namespace LpxApi.launchpad;
+
+public readonly struct Palette : IByteTransmittable, IEquatable<Palette>
 {
     public byte Index { get; }
     public byte R { get; }
     public byte G { get; }
     public byte B { get; }
-    public System.Windows.Media.Color Color => System.Windows.Media.Color.FromArgb(255, R, G, B);
 
     private Palette(byte index, byte r, byte g, byte b)
     {
@@ -19,13 +20,17 @@ public readonly struct Palette : IByteTransmittable
     public static implicit operator byte(Palette p) => p.Index;
     public static implicit operator UInt7(Palette p) => new(p.Index);
     public static implicit operator Palette(UInt7 b) => b.Value;
-
-    public static implicit operator System.Windows.Media.Color(Palette p) =>
-        System.Windows.Media.Color.FromArgb(255, p.R, p.G, p.B);
+    public static implicit operator Palette(int index) => FromIndex(index);
+    public static bool operator ==(Palette left, Palette right) => left.Equals(right);
+    public static bool operator !=(Palette left, Palette right) => !(left == right);
 
     public byte[] ToBytes() => [Index];
 
-    public static implicit operator Palette(int index) => index switch
+    public override bool Equals([NotNullWhen(true)] object? obj) => obj is Palette p && p.Index == Index;
+    public bool Equals(Palette other) => Index == other.Index;
+    public override int GetHashCode() => Index;
+
+    public static Palette FromIndex(int index) => index switch
     {
         0x00 => Off,
         0x01 => DarkGray,

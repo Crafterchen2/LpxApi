@@ -1,6 +1,6 @@
 ﻿namespace LpxApi.launchpad;
 
-public readonly struct LpxVersion : IByteTransmittable
+public readonly record struct LpxVersion : IByteTransmittable
 {
     public byte Digit1 { get; }
     public byte Digit2 { get; }
