@@ -7,16 +7,15 @@ namespace LpxApi;
 
 public static class LpxApi
 {
-    public const string Version = "0.5.1";
+    public const string Version = "0.5.2";
     
     private static readonly Lock SendLock = new();
-    private static bool _isSending = false;
-    
+
     public static bool IsSending 
     { 
-        get { lock (SendLock) { return _isSending; } }
-        private set { lock (SendLock) { _isSending = value; } }
-    }
+        get { lock (SendLock) { return field; } }
+        private set { lock (SendLock) { field = value; } }
+    } = false;
 
     public static long GetDeviceCount(IoType? type = null)
     {

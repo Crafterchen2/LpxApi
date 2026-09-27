@@ -35,6 +35,7 @@ public readonly record struct ButtonIndex : IByteTransmittable
 
     public bool IsMenuButton => Index != 99 && (X == 9 || Y == 9);
     public bool IsStatusLed => Index == 99;
+    public bool IsGrid => X != 9 && Y != 9;
 }
 
 public enum MenuButtonIndex : byte

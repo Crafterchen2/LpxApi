@@ -19,10 +19,10 @@ public readonly struct Palette : IByteTransmittable, IEquatable<Palette>
 
     public static implicit operator byte(Palette p) => p.Index;
     public static implicit operator UInt7(Palette p) => new(p.Index);
-    public static implicit operator Palette(UInt7 b) => b.Value;
+    public static implicit operator Palette(UInt7 b) => FromIndex(b.Value);
     public static implicit operator Palette(int index) => FromIndex(index);
-    public static bool operator ==(Palette left, Palette right) => left.Equals(right);
-    public static bool operator !=(Palette left, Palette right) => !(left == right);
+    public static bool operator ==(Palette left, Palette right) => left.Index == right.Index;
+    public static bool operator !=(Palette left, Palette right) => left.Index != right.Index;
 
     public byte[] ToBytes() => [Index];
 
